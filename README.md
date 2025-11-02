@@ -14,17 +14,20 @@ The processed files are stored in a Cloudflare R2 bucket, which is compatible wi
 5. All files are uploaded to Cloudflare R2 storage.
 6. The manifest can be used by a video player to stream the video adaptively based on network speed.
 
----
+
 
 ### Tech Stack
 
-* **Language:** TypeScript
-* **Framework:** Express.js (Node.js)
-* **ORM:** Prisma
-* **Database:** PostgreSQL
-* **Video Processing:** FFmpeg
-* **Cloud Storage:** Cloudflare R2 (S3 compatible)
-* **Authentication:** JWT-based middleware
+| Component            | Description                   |
+| -------------------- | ----------------------------- |
+| **Language**         | TypeScript                    |
+| **Framework**        | Express.js (Node.js)          |
+| **ORM**              | Prisma                        |
+| **Database**         | PostgreSQL                    |
+| **Video Processing** | FFmpeg                        |
+| **Cloud Storage**    | Cloudflare R2 (S3 compatible) |
+| **Authentication**   | JWT-based middleware          |
+
 
 ---
 
