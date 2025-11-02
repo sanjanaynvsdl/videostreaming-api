@@ -4,9 +4,14 @@ import fs from "fs";
 import { processVideo } from "../utils/video-processing.js";
 import prisma from "../clients/prisma-client.js";
 import { authenticateToken } from "../middleware/middleware.js";
+import {  GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import s3Client from "../clients/aws-client.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
+const BUCKET_NAME = process.env.R2_BUCKET!;
+const PUBLIC_R2_BASE_URL = process.env.R2_PUBLIC_BASE_URL!;
 
 // Upload and process video
 router.post("/upload",authenticateToken, upload.single("video"), async (req, res) => {
@@ -39,6 +44,7 @@ router.post("/upload",authenticateToken, upload.single("video"), async (req, res
         status: "processing",
       },
     });
+    console.log("file details : " + req.file);
 
     //process, upload
     const { manifests } = await processVideo(req.file.path, String(video.id));
@@ -67,17 +73,52 @@ router.post("/upload",authenticateToken, upload.single("video"), async (req, res
   }
 });
 
+
+
 // Fetch manifest URL
 router.get("/:id/manifest", async (req, res) => {
-  const video = await prisma.video.findUnique({
-    where: { id: parseInt(req.params.id, 10) },
-  });
+  const videoId = parseInt(req.params.id, 10);
 
-  if (!video) {
-    return res.status(404).json({ error: "Video not found" });
+  if (isNaN(videoId)) {
+    return res.status(400).json({ error: "Invalid video ID" });
   }
 
-  res.json({ manifestUrl: video.manifestUrl });
+  try {
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+    });
+
+    if (!video) {
+      return res.status(404).json({ error: "Video not found" });
+    }
+
+    const manifestKey = video.manifestUrl; // videos/6/master.m3u8
+    if (!manifestKey) {
+      return res.status(400).json({ error: "Missing manifest key" });
+    }
+    const directUrl = `${PUBLIC_R2_BASE_URL}/${manifestKey}`;
+
+    // --- PRESIGNED URL GENERATION if bucket is private ---
+    /*
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: manifestKey,
+    });
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    */
+
+    // Return the direct URL instead of signed URL
+    return res.json({
+      videoId,
+      manifestUrl: directUrl,  // use direct public URL
+      // manifestUrl: signedUrl,  // (use this if bucket is private)
+    });
+
+  } catch (error) {
+    console.error("Error fetching manifest URL:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
+
 
 export default router;
