@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Stream Demo</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/hls-video-element@1.1/+esm"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: black;
+      color: #f3faf8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    h1 {
+      font-weight: 600;
+      font-size: 3rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      margin: 0;
+      color:#f3faf8;
+    }
+    p {
+      font-weight: 400;
+      font-size: 1.25rem;
+      max-width: 600px;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    }
+    hls-video {
+      max-width: 720px;
+      width: 90vw;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+      background-color: #001f3f;
+    }
+  </style>
+</head>
+<body>
+  <h1>Streaming Video Demo</h1>
+  <p>Playing adaptive bitrate HLS stream from Cloudflare R2 manifest URL.</p>
+  <hls-video
+    controls
+    crossorigin="anonymous"
+    src="https://pub-3de7d22a2c5c465d88a0ae7f44653fac.r2.dev/videos/8/master.m3u8"
+  ></hls-video>
+</body>
+</html>
