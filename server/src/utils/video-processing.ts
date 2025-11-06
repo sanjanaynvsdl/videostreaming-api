@@ -23,12 +23,6 @@ export async function uploadToR2(key: string, fileBuffer: Buffer) {
   await s3Client.send(command);
 }
 
-// Utility to upload local file to R2
-export async function uploadFileToR2FromPath(key: string, filePath: string) {
-  const fileBuffer = fs.readFileSync(filePath);
-  await uploadToR2(key, fileBuffer);
-}
-
 // Transcode video to multiple resolutions and segment to HLS chunks
 export async function processVideo(filePath: string, videoId: string): Promise<{ manifests: Record<string, string> }> {
   const resolutions = [
@@ -67,7 +61,7 @@ export async function processVideo(filePath: string, videoId: string): Promise<{
       .output(path.join(resDir, "index.m3u8"))
       .on("stderr", data => console.log(`[${name}]`, data.toString())) // logs
       .on("end", () => {
-        console.log(`${name} transcoded successfully ✅`);
+        // console.log(`${name} transcoded successfully ✅`);
         resolve();
       })
       .on("error", err => reject(err))
@@ -115,31 +109,5 @@ export async function processVideo(filePath: string, videoId: string): Promise<{
 }
 
 
-
-
-export async function acknowledgeMessage(leaseId: string) {
-  try {
-    const resp = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/queues/${QUEUE_ID}/messages/ack`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${QUEUES_API_TOKEN}`,
-        },
-        body: JSON.stringify({ ack_ids: [leaseId] }),
-      }
-    );
-
-    const data = await resp.json();
-    if (!data.success) {
-      console.error("❌ Ack failed:", data);
-    } else {
-      console.log("✅ Acked", leaseId);
-    }
-  } catch (err) {
-    console.error("❌ Ack request crashed:", err);
-  }
-}
 
 
