@@ -4,9 +4,6 @@ import fs from "fs";
 import { processVideo } from "../utils/video-processing.js";
 import prisma from "../clients/prisma-client.js";
 import { authenticateToken } from "../middleware/middleware.js";
-import {  GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import s3Client from "../clients/aws-client.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });

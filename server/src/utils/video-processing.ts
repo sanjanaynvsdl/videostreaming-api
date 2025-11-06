@@ -7,6 +7,10 @@ import s3Client from "../clients/aws-client.js";
 
 
 const BUCKET_NAME = process.env.R2_BUCKET!;
+const CF_ACCOUNT_ID=process.env.CF_ACCOUNT_ID!;
+const QUEUE_ID=process.env.CF_QUEUE_ID!;
+const QUEUES_API_TOKEN=process.env.CF_QUEUES_API_TOKEN!;
+
 
 
 export async function uploadToR2(key: string, fileBuffer: Buffer) {
@@ -108,6 +112,34 @@ export async function processVideo(filePath: string, videoId: string): Promise<{
   await uploadToR2(`videos/${videoId}/master.m3u8`, Buffer.from(masterPlaylist));
 
   return { manifests: { master: `videos/${videoId}/master.m3u8` } };
+}
+
+
+
+
+export async function acknowledgeMessage(leaseId: string) {
+  try {
+    const resp = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/queues/${QUEUE_ID}/messages/ack`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${QUEUES_API_TOKEN}`,
+        },
+        body: JSON.stringify({ ack_ids: [leaseId] }),
+      }
+    );
+
+    const data = await resp.json();
+    if (!data.success) {
+      console.error("❌ Ack failed:", data);
+    } else {
+      console.log("✅ Acked", leaseId);
+    }
+  } catch (err) {
+    console.error("❌ Ack request crashed:", err);
+  }
 }
 
 

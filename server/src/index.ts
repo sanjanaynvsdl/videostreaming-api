@@ -3,6 +3,7 @@ import "dotenv/config";
 import userRoutes from "./routes/user-routes.js";
 import uploadRoutes from "./routes/presignedurl-uploads.js";
 import videoRoutes from "./routes/videos-route.js";
+import pollingRoutes from "./routes/polling-route.js";
 
 const app = express();
 app.use(express.json());
@@ -12,6 +13,7 @@ console.log("got the req");
 app.use("/api/users", userRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/videos",videoRoutes);
+app.use("/api/poll",pollingRoutes);
 
 const port = process.env.PORT || "3000";
 
