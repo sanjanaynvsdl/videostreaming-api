@@ -30,3 +30,7 @@
 [https://videostream-consumer.everyai-com.workers.dev](https://videostream-consumer.everyai-com.workers.dev)
 
 
+```sh
+#to view the logs
+ wrangler tail videostream-consumer
+```
