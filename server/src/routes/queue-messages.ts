@@ -16,13 +16,78 @@ const QUEUE_ID = process.env.CF_QUEUE_ID!;
 const BUCKET_NAME = process.env.R2_BUCKET!;
 
 
+// CONSUMER TYPE -> worker to http post call for processing
+//1. each message objectkey is recieved
+//2. objectKey -> uploads/341241212
+//3. split, procees, upload to r2, update db, return 200
 
-//1. pull messages from queue
+router.post("/worker",async(req,res)=>{
+    try {
+        const objectKey = req.body.key; //uploads/24121213
+        const userId = objectKey.split("/")[1];
+        
+        //req body -> video obj key
+        console.log("Object key to be processed is : " + objectKey);
+        const tempFilePath = `/tmp/${Date.now()}-${path.basename(objectKey)}`;
+
+        const obj = await s3Client.send(
+            new GetObjectCommand({
+                Bucket:BUCKET_NAME,
+                Key:objectKey,
+            })
+        );
+
+        await pipeline(obj.Body as any, createWriteStream(tempFilePath));
+        
+        //entry on db
+        const video = await prisma.video.create({
+            data:{
+                userId,
+                key:objectKey,
+                status:"processing",
+            }
+        });
+
+        const {manifests} = await processVideo(tempFilePath,String(video.id));
+        
+        await prisma.video.update({
+            where:{id:video.id},
+            data:{manifestUrl:manifests.master!,
+                status:"completed",
+            }
+        });
+
+        fs.unlinkSync(tempFilePath);
+        console.log("Processes and uploaded to DB successfully!!");
+
+        return res.status(200).json({
+            message:"Successfully proccessed video!",
+        });
+
+        
+    } catch (error) {
+        if(error instanceof Error) {
+            console.error("Internal server error : " + error);
+            return res.status(500).json({
+                message:"Error while processing from worker!",
+                error:error.message
+            });
+        }
+        console.error("Error while processing from worker : " + error);
+        return res.status(500).json({
+            message:"Error on server!",
+            error:error
+        });
+    }
+});
+
+// CONSUMER TYPE - HTTP pull
+//1. poll messages from queue 
 //2. download video and process -> upload segments to R2
 //3. store the m3u8 master file on db
 //4. acknowledge queue message
 
-router.post("/consume-queue", async (req, res) => {
+router.post("/pull", async (req, res) => {
     try {
 
         const { messages = [] } = await cf.queues.messages.pull(QUEUE_ID, {
@@ -116,6 +181,8 @@ router.post("/consume-queue", async (req, res) => {
         });
     }
 });
+
+
 
 
 export default router;
