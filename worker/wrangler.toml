@@ -1,0 +1,12 @@
+name = "videostream-consumer"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+account_id = "a54b12fe3ef06df16ff0041d79c18fc0"
+
+# No env vars yet, just logging
+# (we will add BACKEND_URL later)
+
+[[queues.consumers]]
+queue = "videostream"
+max_batch_size = 10          # optional
+max_batch_timeout = 60

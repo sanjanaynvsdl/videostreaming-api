@@ -93,7 +93,6 @@ router.post("/consume-queue", async (req, res) => {
                     { lease_id: message.lease_id }
                 ]
             });
-
             console.log("Message ack : " + JSON.stringify(responseAck, null, 2));
         }
         return res.status(200).json({
