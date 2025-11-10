@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf dist",
+    "prebuild": "npx prisma generate",
     "build": "npm run clean && tsc",
     "start": "node dist/index.js"
   },
@@ -12,9 +13,14 @@
   "author": "",
   "license": "ISC",
   "type": "module",
-  "devDependencies": {
+ "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
-
+    "@types/express": "^5.0.5",
+    "@types/fluent-ffmpeg": "^2.1.28",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
