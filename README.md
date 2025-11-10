@@ -44,6 +44,46 @@ FFmpeg is a command-line tool used for video processing. In this project, it tra
 
 ---
 
+### Architecture
+
+```mermaid
+graph TD
+
+  %% Client Side
+  Client["Client (Web / Mobile)"]
+
+  %% Server
+  Server["Video Server (Node.js / Express)"]
+
+  %% Cloudflare
+  subgraph Cloudflare["Cloudflare Services"]
+    R2["R2 Bucket (Video Storage)"]
+    Queue["VideoStream Queue"]
+    Worker["VideoStream Worker (Consumer)"]
+  end
+
+  %% Database
+  DB["PostgreSQL Database"]
+
+  %% Upload Flow
+  Client -->|/get-upload-url| Server
+  Server -->|returns pre-signed URL| Client
+  Client -->|uploads video| R2
+
+  %% Trigger Flow
+  R2 -->|upload event| Queue
+  Queue -->|trigger| Worker
+  Worker -->|POST /process-video| Server
+
+  %% Storage
+  Server -->|store metadata| DB
+
+  %% Playback
+  Client -->|/get-video| Server
+  Server -->|returns manifest (.m3u8)| Client
+  Client -->|stream video chunks| R2
+```
+
 ### API Endpoints
 
 **User routes**
@@ -100,4 +140,7 @@ To run the server locally:
    npm start
    ```
 Make sure you have FFmpeg installed and your `.env` file configured with database and Cloudflare R2 credentials.
+
+
+
 
