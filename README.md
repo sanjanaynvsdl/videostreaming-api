@@ -46,7 +46,6 @@ FFmpeg is a command-line tool used for video processing. In this project, it tra
 
 ### Architecture
 
-```mermaid
 graph TD
 
   %% Client Side
@@ -82,7 +81,7 @@ graph TD
   Client -->|/get-video| Server
   Server -->|returns manifest (.m3u8)| Client
   Client -->|stream video chunks| R2
-```
+
 
 ### API Endpoints
 
