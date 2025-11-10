@@ -4,12 +4,22 @@ import userRoutes from "./routes/user-routes.js";
 import uploadRoutes from "./routes/presignedurl-uploads.js";
 import videoRoutes from "./routes/videos-route.js";
 import queueMessages from "./routes/queue-messages.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
 
+app.use(cors({
+    origin:process.env.CLIENT_URL || "*",
+    methods:["GET","POST","PUT","DELETE"],
+    credentials:true,
+}));
 
-console.log("got the req");
+app.get("/", (req,res)=>{
+    return res.status(200).json({
+        message:"All Set, Server is running!"
+    })
+})
 app.use("/api/users", userRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/videos",videoRoutes);
