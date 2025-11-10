@@ -14,7 +14,7 @@
   "type": "module",
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
-    "@types/node": "^24.9.2",
+
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
@@ -28,6 +28,7 @@
     "@types/fluent-ffmpeg": "^2.1.28",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
+    "@types/node": "^24.9.2",
     "aws4fetch": "^1.0.20",
     "bcrypt": "^6.0.0",
     "cloudflare": "^5.2.0",
