@@ -14,6 +14,17 @@ The processed files are stored in a Cloudflare R2 bucket, which is compatible wi
 5. All files are uploaded to Cloudflare R2 storage.
 6. The manifest can be used by a video player to stream the video adaptively based on network speed.
 
+### Updated Project Flow (v1)
+
+1. The user requests a video upload.
+2. The backend generates and returns a pre-signed URL for direct upload.
+3. The user directly uploads the video file to Cloudflare R2 using the pre-signed URL.
+4. A Cloudflare Worker is triggered when the upload completes, and it notifies the backend.
+5. The backend processes the uploaded file using FFmpeg (transcoding + HLS segmentation).
+6. Processed files and the manifest are uploaded back to Cloudflare R2.
+7. The manifest URL is returned to the client for adaptive playback.
+   
+
 
 
 ### Tech Stack
@@ -46,66 +57,9 @@ FFmpeg is a command-line tool used for video processing. In this project, it tra
 
 ### Architecture
 
-graph TD
-
-  %% Client Side
-  Client["Client (Web / Mobile)"]
-
-  %% Server
-  Server["Video Server (Node.js / Express)"]
-
-  %% Cloudflare
-  subgraph Cloudflare["Cloudflare Services"]
-    R2["R2 Bucket (Video Storage)"]
-    Queue["VideoStream Queue"]
-    Worker["VideoStream Worker (Consumer)"]
-  end
-
-  %% Database
-  DB["PostgreSQL Database"]
-
-  %% Upload Flow
-  Client -->|/get-upload-url| Server
-  Server -->|returns pre-signed URL| Client
-  Client -->|uploads video| R2
-
-  %% Trigger Flow
-  R2 -->|upload event| Queue
-  Queue -->|trigger| Worker
-  Worker -->|POST /process-video| Server
-
-  %% Storage
-  Server -->|store metadata| DB
-
-  %% Playback
-  Client -->|/get-video| Server
-  Server -->|returns manifest (.m3u8)| Client
-  Client -->|stream video chunks| R2
 
 
-### API Endpoints
 
-**User routes**
-`/api/users` — user authentication and management routes.
-
-**Upload routes**
-`POST /api/uploads/upload` — upload a new video (authenticated).
-
-**Video routes**
-`GET /api/videos/:id/manifest` — get the HLS manifest file for a video.
-`GET /api/videos/presigned-url` — get a presigned URL for uploading directly to Cloudflare R2 (authenticated).
-
----
-
-### Future Improvements
-
-1. Offload video processing to a Cloudflare Worker or another background processor.
-
-   * The upload API would only generate a presigned URL and store metadata.
-   * A worker or queue system would handle transcoding and re-uploading, reducing backend load.
-2. Improve FFmpeg integration to stream data instead of writing intermediate files to disk.
-
-   * This would make processing faster and reduce disk usage.
 
 ---
 
