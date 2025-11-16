@@ -10,6 +10,7 @@
 
  #check
  npx wrangler whoami
+
  ```
 
 - as we want to consume the messages from the queue, we will have a qeueu worker
@@ -33,4 +34,14 @@
 ```sh
 #to view the logs
  wrangler tail videostream-consumer
+```
+
+
+```sh
+# if there are any issues while deploying check
+echo $CLOUDFLARE_ACCOUNT_ID
+echo $CLOUDFLARE_API_TOKEN
+
+# then 
+wrangler deploy
 ```

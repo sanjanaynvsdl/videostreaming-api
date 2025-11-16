@@ -10,7 +10,7 @@ export default {
              const key = body?.object?.key;
 
             try {
-                const response = await fetch("https://6d5cd9311f70.ngrok-free.app/api/queue/worker", {
+                const response = await fetch("https://videostreaming-api.onrender.com/api/queue/worker", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ key }),

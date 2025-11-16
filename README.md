@@ -56,6 +56,7 @@ FFmpeg is a command-line tool used for video processing. In this project, it tra
 ---
 
 ### Architecture
+![Architecture Diagram](./server/architecture2.png)
 
 
 
